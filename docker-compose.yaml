@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  my_container:
+    image: openjdk
+    container_name: java-spring-boot-web-app
+    networks:
+      my_network:
+        ipv4_address: 192.168.1.150
+networks:
+  my_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.1.0/24
