@@ -1,0 +1,51 @@
+name: CI/CD Pipeline
+
+# Déclenche le pipeline lorsqu'un code est poussé sur la branche main
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Vérifier le code (cloner le dépôt)
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 2. Installer JDK
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'  # Remplace par la version JDK utilisée pour ton projet
+          distribution: 'temurin'
+
+      # 3. Construire le projet avec Maven
+      - name: Build with Maven
+        run: mvn clean package
+
+      # 4. Lancer les tests
+      - name: Run tests
+        run: mvn test
+
+  deploy:
+    # Le déploiement dépend du job de build
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Préparer le déploiement sur le serveur
+      - name: Deploy to server
+        env:
+          SERVER: ${{ secrets.SERVER }}
+          USERNAME: ${{ secrets.USERNAME }}
+          PASSWORD: ${{ secrets.PASSWORD }}
+        run: |
+          echo "Connexion au serveur..."
+          sshpass -p $PASSWORD ssh $USERNAME@$SERVER << 'EOF'
+          # Exemple de commandes pour copier et démarrer l'application
+          mkdir -p ~/spring-app
+          exit
+EOF
